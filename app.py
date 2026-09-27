@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # Hugging Face configuration
 HF_TOKEN = os.getenv("HF_TOKEN")
-MODEL_ID = "meta-llama/Llama-3.2-3B-Instruct"
+MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
 
 client = InferenceClient(model=MODEL_ID, token=HF_TOKEN)
 
