@@ -1,46 +1,48 @@
 const chatForm = document.getElementById('chatForm');
 const userInput = document.getElementById('userInput');
 const chatBox = document.getElementById('chatBox');
-let conversationHistory = [];
+
+let conversation = [];
 
 chatForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const messageText = userInput.value.trim();
-  if (!messageText) return;
+  const text = userInput.value.trim();
+  if (!text) return;
 
-  appendMessage(messageText, 'user-message');
-  conversationHistory.push({ role: 'user', content: messageText });
+  // Add user prompt to screen
+  addMessage(text, 'user');
+  conversation.push({ role: 'user', content: text });
   userInput.value = '';
 
-  const loadingElement = appendMessage('Thinking...', 'assistant-message');
+  // Placeholder while model thinks
+  const loading = addMessage('Thinking...', 'assistant');
 
   try {
-    const response = await fetch('/api/chat', {
+    const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: conversationHistory })
+      body: JSON.stringify({ messages: conversation })
     });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      loadingElement.textContent = data.reply;
-      conversationHistory.push({ role: 'assistant', content: data.reply });
+    
+    const data = await res.json();
+    if (res.ok) {
+      loading.textContent = data.reply;
+      conversation.push({ role: 'assistant', content: data.reply });
     } else {
-      loadingElement.textContent = `Error: ${data.error || 'Failed to generate response'}`;
+      loading.textContent = data.error || 'Something went wrong.';
     }
   } catch (err) {
-    loadingElement.textContent = 'Error connecting to backend.';
+    loading.textContent = 'Network error. Try again.';
   }
 
   chatBox.scrollTop = chatBox.scrollHeight;
 });
 
-function appendMessage(text, className) {
-  const msgDiv = document.createElement('div');
-  msgDiv.classList.add('message', className);
-  msgDiv.textContent = text;
-  chatBox.appendChild(msgDiv);
+function addMessage(text, type) {
+  const el = document.createElement('div');
+  el.className = `msg ${type}`;
+  el.textContent = text;
+  chatBox.appendChild(el);
   chatBox.scrollTop = chatBox.scrollHeight;
-  return msgDiv;
+  return el;
 }
