@@ -1,0 +1,4 @@
+flask
+gunicorn
+huggingface_hub
+python-dotenv
